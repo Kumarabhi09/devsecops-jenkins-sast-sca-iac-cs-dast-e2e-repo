@@ -2,19 +2,25 @@ pipeline {
   agent any
 
   tools {
-      jdk 'JDK11'
+      jdk 'JDK17'
       maven 'Maven_3_9_11'
   }
 
   stages {
 
-    stage('Compile and Run Sonar Analysis') {
-      steps {
-        withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
-          bat "mvn -Dmaven.test.failure.ignore verify sonar:sonar -Dsonar.login=%SONAR_TOKEN% -Dsonar.projectKey=easybuggy -Dsonar.host.url=http://localhost:9000/"
-        }
+      stage('Check Java Version') {
+          steps {
+              bat 'java -version'
+          }
       }
-    }
+
+      stage('Compile and Run Sonar Analysis') {
+          steps {
+              withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                  bat "mvn -Dmaven.test.failure.ignore verify sonar:sonar -Dsonar.login=%SONAR_TOKEN% -Dsonar.projectKey=easybuggy -Dsonar.host.url=http://localhost:9000/"
+              }
+          }
+      }
 
     stage('Build Docker Image') {
       steps {
